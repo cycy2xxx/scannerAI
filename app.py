@@ -127,13 +127,79 @@ def query_ollama(api_url: str, model: str, prompt: str) -> str:
 
 
 AI_PROMPT_TEMPLATE = """\
-As an expert penetration tester, analyze these results:
+You are a senior penetration tester writing an evidence-based vulnerability analysis report.
+Analyze the following scan results and produce a detailed technical report.
 
 {scan_data}
 
-1. Identify the most critical attack vector.
-2. Formulate a potential multi-stage attack chain.
-3. Suggest 'Top 3 Concrete Next Steps' for remediation or further manual testing.\
+=== STRICT RULES ===
+
+1. EVIDENCE-BASED CVE ANALYSIS:
+   - Always use CVE IDs as professional identifiers when relevant.
+   - For EVERY CVE mentioned, you MUST include ALL of the following:
+     a) Technical mechanism: explain exactly what the vulnerability does at the code/protocol level (2-3 sentences minimum).
+     b) Scan evidence: cite the specific tool output (tool name, line reference, URL) that proves this finding.
+     c) Contextual importance: explain why this matters for THIS specific target.
+   - NEVER list a CVE without its technical explanation.
+
+2. TECHNICAL DEPTH for each vulnerability:
+   - Protocol-level details: HTTP methods, parameters, headers, endpoints involved.
+   - Attacker operations: what an attacker would actually do step-by-step (not abstract descriptions).
+   - Defense difficulty: why standard mitigations may fail in this context.
+   - Post-exploitation: what an attacker gains access to after successful exploitation.
+
+3. CONTEXT-AWARE ATTACK CHAINS:
+   - Build attack chains ONLY from actual scan results — never fabricate findings.
+   - Each step MUST reference a specific scan result (tool name + finding).
+   - Chain discovered usernames → authentication attacks.
+   - Chain exposed directories → file upload/traversal opportunities.
+   - Chain service versions → version-specific exploits.
+   - Minimum 3 concrete scan result references per attack chain.
+
+4. ACTIONABLE INTELLIGENCE (not generic advice):
+   - Provide specific verification commands (curl, nmap, wp-cli, etc.) for each finding.
+   - Include exact file paths to investigate.
+   - Specify exact version numbers for upgrades.
+   - Include validation commands to confirm remediation worked.
+
+5. RISK SCORING for prioritization:
+   - Exploitability: Is a public exploit available? Is authentication required?
+   - Asset criticality: What data or functionality is exposed?
+   - Attack surface: External vs internal, port exposure level.
+
+=== PROHIBITED PATTERNS (never do these) ===
+- Do NOT list CVEs without 2-3 sentence technical explanations.
+- Do NOT give generic advice like "update software" or "apply patches" without specifying exact versions and commands.
+- Do NOT build attack chains that reference assets not found in the scan results.
+- Do NOT provide remediation steps without verification commands.
+- Do NOT copy-paste generic vulnerability descriptions from databases.
+
+=== REQUIRED OUTPUT STRUCTURE ===
+
+## 🚨 Critical Vulnerabilities (ranked by exploitability × impact)
+[Each entry: CVE → technical mechanism → scan evidence → exploit scenario]
+
+## 🎯 Attack Chain Analysis
+[Multi-stage paths using ONLY discovered services/directories/credentials from the scan results above]
+
+## 🔬 Technical Deep Dive
+[Protocol-level explanation for the top 3 vulnerabilities]
+
+## ⚡ Immediate Actions (with verification commands)
+[Specific, immediately executable steps — NOT generic recommendations]
+
+## 🧪 Manual Testing Roadmap
+[What to investigate next, based on scan results + vulnerability types found]
+
+## 📋 Remediation Plan (priority-ordered)
+[Exact version numbers, configuration changes, architecture improvements with verification commands]
+
+=== QUALITY REQUIREMENTS ===
+- Every CVE mention must have 2-3 sentences of technical explanation.
+- Every remediation step must be immediately actionable with specific commands/versions.
+- Attack chains must reference at least 3 specific scan results.
+- No context-free generic advice like "update" or "patch" without details.
+- Use technical terms precisely (RCE, XSS, SQLi, SSRF, etc.).\
 """
 
 
